@@ -88,7 +88,8 @@ class BeamSearchDecoder(object):
         rouge_log(results_dict, self._decode_dir)
         return
 
-      original_article = batch.original_articles[0]  # string
+      original_article = batch.original_articles[0]
+      original_article1 = batch.original_articles[1]# string
       original_abstract = batch.original_abstracts[0]  # string
       original_abstract_sents = batch.original_abstracts_sents[0]  # list of strings
 
@@ -96,7 +97,10 @@ class BeamSearchDecoder(object):
       abstract_withunks = data.show_abs_oovs(original_abstract, self._vocab, (batch.art_oovs[0] if FLAGS.pointer_gen else None)) # string
 
       # Run beam search to get best Hypothesis
-      best_hyp = beam_search.run_beam_search(self._sess, self._model, self._vocab, batch)
+      #best_hyp = beam_search.run_beam_search(self._sess, self._model, self._vocab, batch)
+
+      constraint = [[214,213]]
+      best_hyp = beam_search.run_grid_beam_search(self._sess, self._model, self._vocab, batch, constraint)
 
       # Extract the output ids from the hypothesis and convert back to words
       output_ids = [int(t) for t in best_hyp.tokens[1:]]
